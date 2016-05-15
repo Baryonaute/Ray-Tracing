@@ -22,7 +22,7 @@ class Ray {
 	
 	// Intersection avec une sphère
 	
-	
+	pair<bool, Vector> intersect(Sphere s);
 	
 	// Destructeur
 	

@@ -24,7 +24,7 @@ Sphere::Sphere(Vector center, double radius, Vector color) {
 
 ostream& operator<<(ostream& os, const Sphere& s) {
 	
-	os << "Sphere[center = " << s.center << "; radius = " << s.radius << "]";
+	os << "Sphere[center = " << s.center << "; radius = " << s.radius << "; couleur = " << s.color << "]";
 	return os;
 }
 

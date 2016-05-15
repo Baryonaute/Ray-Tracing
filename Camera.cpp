@@ -5,19 +5,11 @@ using namespace std;
 
 // Constructeurs
 
-Camera::Camera() {
-	
-	eye = Vector();
-	target = Vector();
-	orientation = Vector();
-	width = 0;
-	height = 0;
-}
-
 Camera::Camera(Vector eye, Vector target, Vector orientation) {
 	
 	this->eye = eye;
 	this->target = target;
+	orientation.normalize();
 	this->orientation = orientation;
 	this->width = 640;
 	this->height = 480;
@@ -27,6 +19,7 @@ Camera::Camera(Vector eye, Vector target, Vector orientation, int width, int hei
 	
 	this->eye = eye;
 	this->target = target;
+	orientation.normalize();
 	this->orientation = orientation;
 	this->width = width;
 	this->height = height;
