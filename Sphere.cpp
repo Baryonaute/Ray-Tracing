@@ -1,0 +1,36 @@
+#include "Sphere.h"
+
+using namespace std;
+
+
+// Constructeurs
+
+Sphere::Sphere() {
+
+	center = Vector();
+	radius = 0;
+	color = Vector(); // black
+}
+
+Sphere::Sphere(Vector center, double radius, Vector color) {
+
+	this->center = center;
+	this->radius = radius;
+	this->color = color;
+}
+
+
+// Affichage console
+
+ostream& operator<<(ostream& os, const Sphere& s) {
+	
+	os << "Sphere[center = " << s.center << "; radius = " << s.radius << "]";
+	return os;
+}
+
+
+// Destructeur
+
+Sphere::~Sphere() {
+
+}
