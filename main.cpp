@@ -140,28 +140,15 @@ int main(int argc, const char * argv[]) {
 			pixel = y * width + x;
 			
 			Ray ray = Ray(camera.eye, Vector(x, y, 0) - camera.eye);
-			Vector point = Vector();
-			bool alreadyintersected = false;
 			
-			for (vector<Sphere>::iterator i = scene.spheres.begin(); i != scene.spheres.end(); ++i) {
+			for (int i = 0; i < scene.spheres.size(); ++i) {
 				
-				pair<bool,Vector> intersection = ray.intersect(*i);
-				
-				if (intersection.first && !alreadyintersected) {
+				if (ray.intersect(scene.spheres[i]).first) {
 					
-					alreadyintersected = true;
-					point = intersection.second;
-					
-				} else if (intersection.first && alreadyintersected) {
-					
-					Vector temp1;
-					temp1 = point - camera.eye;
-					Vector temp2 = intersection.second - camera.eye;
-					
-					if(temp2.norm() < temp1.norm()){//mise à jour du champ result2
-						
-						point = intersection.second;
-					}
+					Vector result = rayTracer.pixelCompute(ray, sphere1, ray.intersect(scene.spheres[i]).second);
+					pixels[pixel].r = result.x;
+					pixels[pixel].g = result.y;
+					pixels[pixel].b = result.z;
 					
 				} else {
 					
@@ -169,14 +156,6 @@ int main(int argc, const char * argv[]) {
 					pixels[pixel].g = 255;
 					pixels[pixel].b = 255;
 				}
-				
-			//Là il est temps de récuperer le résultat de l'intersection et de calculer son pixel
-			//On va parler de la partie 3 et du calcul des ombres dans la scene
-			Vector result = rayTracer.pixelCompute(ray, sphere1, point);
-				
-					pixels[pixel].r = result.x;
-					pixels[pixel].g = result.y;
-					pixels[pixel].b = result.z;
 			}
 		}
 	}
