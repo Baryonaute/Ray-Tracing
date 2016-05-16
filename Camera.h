@@ -19,6 +19,7 @@ class Camera {
 	
 	// Constructeurs
 	
+	Camera();
 	Camera(Vector eye, Vector target, Vector orientation);
 	Camera(Vector eye, Vector target, Vector orientation, int width, int height);
 	

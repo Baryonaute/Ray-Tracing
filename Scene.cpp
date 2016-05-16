@@ -3,11 +3,23 @@
 using namespace std;
 
 
-// Constructeur
+// Constructeurs
 
-Scene::Scene(vector<Sphere> spheres) {
+Scene::Scene() {
+	
+	vector<Sphere> spheres;
+	spheres.push_back(Sphere());
+	vector<Light> lights;
+	lights.push_back(Light());
 	
 	this->spheres = spheres;
+	this->lights = lights;
+}
+
+Scene::Scene(vector<Sphere> spheres, vector<Light> lights) {
+	
+	this->spheres = spheres;
+	this->lights = lights;
 }
 
 
@@ -16,15 +28,13 @@ Scene::Scene(vector<Sphere> spheres) {
 ostream& operator<<(ostream& os, const Scene& s) {
 	
 	long n = s.spheres.size();
+	long m = s.lights.size();
 	
 	os << "Scene[";
+	for (int i = 0; i < n; ++i) os << s.spheres[i] << ", ";
+	for (int j = 0; j < m - 1; ++j) os << s.lights[j] << ", ";
+	os << s.lights[n - 1] << "]";
 	
-	for (int i = 0; i < n - 1; ++i) {
-		
-		os << s.spheres[i] << ", ";
-	}
-	
-	os << s.spheres[n - 1] << "]";
 	return os;
 }
 
@@ -32,5 +42,6 @@ ostream& operator<<(ostream& os, const Scene& s) {
 // Destructeur
 
 Scene::~Scene() {
+	
 	
 }

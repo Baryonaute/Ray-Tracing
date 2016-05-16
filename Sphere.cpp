@@ -9,7 +9,7 @@ Sphere::Sphere() {
 
 	center = Vector();
 	radius = 0;
-	color = Vector(); // black
+	color = Vector(); // black sphere by default
 }
 
 Sphere::Sphere(Vector center, double radius, Vector color) {

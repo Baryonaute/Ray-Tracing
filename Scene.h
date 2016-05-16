@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "Sphere.h"
+#include "Light.h"
 
 using namespace std;
 
@@ -13,10 +14,12 @@ class Scene {
 	// Container
 	
 	vector<Sphere> spheres;
+	vector<Light> lights;
 	
 	// Constructeur
 	
-	Scene(vector<Sphere> spheres);
+	Scene();
+	Scene(vector<Sphere> spheres, vector<Light> lights);
 	
 	// Destructeur
 	

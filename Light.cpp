@@ -8,13 +8,13 @@ using namespace std;
 Light::Light() {
 	
 	source = Vector();
-	color = Vector();
+	color = Vector(255, 255, 255); // white light by default
 }
 
 Light::Light(Vector source) {
 	
 	this->source = source;
-	color = Vector();
+	color = Vector(255, 255, 255); // white light by default
 }
 
 Light::Light(Vector source, Vector color) {

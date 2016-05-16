@@ -15,6 +15,7 @@ Ray::Ray(Vector point, Vector direction) {
 	
 	this->point = point;
 	direction.normalize();
+	//cout << "Ray_Direction error : " << direction << endl;
 	this->direction = direction;
 }
 
