@@ -32,19 +32,19 @@ Vector RayTracer::pixelCompute(Ray ray, Sphere sphere, Vector point) {
 	Vector ambiant = Vector();
 	Vector intensity = Vector();
 	
-	long numberOfLightSources = scene.lights.size();
 	
-	for (long i = 0; i < numberOfLightSources; ++i) {
+	
+	for (vector<Light>::iterator i = scene.lights.begin; i = scene.lights.end(); ++i) {
 		
-		l = scene.lights[i].source - point;
+		l = i->source - point;
 		l.normalize();
 		
 		r = 2 * (l * n) * n - l;
 		r.normalize();
 		
-		intensity = intensity + ka * (1 / numberOfLightSources) * scene.lights[i].color; // ambiant ligh
-		if (l * n > 0) intensity = intensity + kd * (l * n) * scene.lights[i].color; // diffuse light
-		if (r * v > 0) intensity = intensity + ks * pow((r * v), alpha) * scene.lights[i].color; // specular light
+		intensity = intensity + ka * (1 / numberOfLightSources) * i->color; // ambiant ligh
+		if (l * n > 0) intensity = intensity + kd * (l * n) * i->color; // diffuse light
+		if (r * v > 0) intensity = intensity + ks * pow((r * v), alpha) * i->color; // specular light
 	}
 	
 	double intensity_x = intensity.x * sphere.color.x / 255;
