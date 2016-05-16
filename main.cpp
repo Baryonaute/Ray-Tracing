@@ -103,10 +103,10 @@ int main(int argc, const char * argv[]) {
 	Light light1 = Light(Vector(0, 120, 30));
 	Light light2 = Light(Vector(480, 360, 300));
 	vector<Light> lights;
-	lights.push_back(light1);
+	//lights.push_back(light1);
 	lights.push_back(light2);
 	
-	Sphere sphere1 = Sphere(Vector(320, 240, 0), 100, Vector(255, 0, 0));
+	Sphere sphere1 = Sphere(Vector(320, 240, 0), 100, Vector(20, 20, 255));
 	Sphere sphere2 = Sphere(Vector(420, 340, 0), 100, Vector(255, 0, 122));
 	vector<Sphere> spheres;
 	spheres.push_back(sphere1);
@@ -114,7 +114,7 @@ int main(int argc, const char * argv[]) {
 	
 	Camera camera = Camera(); // Caméra par défaut dans un premier temps
 	Scene scene = Scene(spheres, lights);
-	RayTracer rayTracer = RayTracer(camera, scene, 0, 0.7, 0.5, 5);
+	RayTracer rayTracer = RayTracer(camera, scene, 0.5, 0.6, 8, 200);
 	
 	cout << scene << endl;
 	cout << camera << endl;
