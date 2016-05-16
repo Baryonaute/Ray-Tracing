@@ -1,3 +1,5 @@
+#include "stdafx.h"
+#include "mpi.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -21,148 +23,171 @@
 using namespace std;
 
 struct RGBType {
-	
+
 	unsigned char r;
 	unsigned char g;
 	unsigned char b;
 };
 
-void savebmp (const char *filename, int width, int height, int dpi, RGBType *data) {
-	
+void savebmp(const char *filename, int width, int height, int dpi, RGBType *data) {
+
 	FILE *f;
 	int k = width * height;
 	int s = 4 * k;
 	int filesize = 54 + s;
-	
+
 	double factor = 39.375;
 	int m = static_cast<int>(factor);
-	
+
 	int ppm = dpi * m;
-	
-	unsigned char bmpfileheader[14] = {'B', 'M', 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 0};
-	unsigned char bmpinfoheader[40] = {40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 24, 0};
-	
+
+	unsigned char bmpfileheader[14] = { 'B', 'M', 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 0 };
+	unsigned char bmpinfoheader[40] = { 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 24, 0 };
+
 	bmpfileheader[2] = (unsigned char)(filesize);
 	bmpfileheader[3] = (unsigned char)(filesize >> 8);
 	bmpfileheader[4] = (unsigned char)(filesize >> 16);
 	bmpfileheader[5] = (unsigned char)(filesize >> 24);
-	
+
 	bmpinfoheader[4] = (unsigned char)(width);
 	bmpinfoheader[5] = (unsigned char)(width >> 8);
 	bmpinfoheader[6] = (unsigned char)(width >> 16);
 	bmpinfoheader[7] = (unsigned char)(width >> 24);
-	
+
 	bmpinfoheader[8] = (unsigned char)(height);
 	bmpinfoheader[9] = (unsigned char)(height >> 8);
 	bmpinfoheader[10] = (unsigned char)(height >> 16);
 	bmpinfoheader[11] = (unsigned char)(height >> 24);
-	
+
 	bmpinfoheader[21] = (unsigned char)(s);
 	bmpinfoheader[22] = (unsigned char)(s >> 8);
 	bmpinfoheader[23] = (unsigned char)(s >> 16);
 	bmpinfoheader[24] = (unsigned char)(s >> 24);
-	
+
 	bmpinfoheader[25] = (unsigned char)(ppm);
 	bmpinfoheader[26] = (unsigned char)(ppm >> 8);
 	bmpinfoheader[27] = (unsigned char)(ppm >> 16);
 	bmpinfoheader[28] = (unsigned char)(ppm >> 24);
-	
+
 	bmpinfoheader[29] = (unsigned char)(ppm);
 	bmpinfoheader[30] = (unsigned char)(ppm >> 8);
 	bmpinfoheader[31] = (unsigned char)(ppm >> 16);
 	bmpinfoheader[32] = (unsigned char)(ppm >> 24);
-	
+
 	f = fopen(filename, "wb");
 	fwrite(bmpfileheader, 1, 14, f);
 	fwrite(bmpinfoheader, 1, 40, f);
-	
+
 	for (int i = 0; i < k; i++) {
-		
+
 		RGBType rgb = data[i];
-		
+
 		unsigned char red = rgb.r;
 		unsigned char green = rgb.g;
 		unsigned char blue = rgb.b;
-		
-		unsigned char color[3] = {blue, green, red};
-		
+
+		unsigned char color[3] = { blue, green, red };
+
 		fwrite(color, 1, 3, f);
 	}
-	
+
 	fclose(f);
 }
 
-int main(int argc, const char * argv[]) {
-	
-	cout << "Rendering..." << endl;
-	
+int main(int argc, char ** argv) {
+
+	std::cout << "Rendering..." << endl;
+	//ajout pour MPI
+	/*int my_rank;
+	int p = 5;
+	int source;
+	int dest;
+	int tag = 50;*/
 	///////////////////////////////////////
 	//// MISE EN PLACE DE L'EXPERIENCE ////
 	///////////////////////////////////////
-	
-	Light light1 = Light(Vector(0, 120, 30));
-	Light light2 = Light(Vector(480, 360, 300));
+
+	Light light1 = Light(Vector(0, 200, 100));
+	Light light2 = Light(Vector(255, 0, 0));
 	vector<Light> lights;
-	//lights.push_back(light1);
+	lights.push_back(light1);
 	lights.push_back(light2);
-	
-	Sphere sphere1 = Sphere(Vector(320, 240, 0), 100, Vector(20, 20, 255));
+
+	Sphere sphere1 = Sphere(Vector(320, 240, 0), 100, Vector(255, 0, 0));
 	Sphere sphere2 = Sphere(Vector(420, 340, 0), 100, Vector(255, 0, 122));
 	vector<Sphere> spheres;
 	spheres.push_back(sphere1);
 	//spheres.push_back(sphere2);
-	
-	Camera camera = Camera(); // CamÃ©ra par dÃ©faut dans un premier temps
+
+	Camera camera = Camera(); // Caméra par défaut dans un premier temps
 	Scene scene = Scene(spheres, lights);
-	RayTracer rayTracer = RayTracer(camera, scene, 0.5, 0.6, 8, 200);
-	
+	RayTracer rayTracer = RayTracer(camera, scene, 0, 0.7, 0.5, 5);
+
 	cout << scene << endl;
 	cout << camera << endl;
 	cout << rayTracer << endl;
-	
+
 	/////////////////////////////////////////////////
 	//// ENREGISTREMENT DE L'IMAGE AU FORMAT BMP ////
 	/////////////////////////////////////////////////
-	
+
 	int dpi = 72;
 	int width = camera.width;
 	int heigth = camera.height;
 	int n = width * heigth;
-	
+
 	int pixel;
-	
+	//MPI_Status status;
+	//MPI_Init(&argc, &argv);
+
 	RGBType* pixels = new RGBType[n];
-	
+	bool test = true;
 	for (int x = 0; x < width; ++x) {
-		
+		if (x == 50) { std::cout << "On rentre dans la boucle" << endl; }
 		for (int y = 0; y < heigth; ++y) {
-			
 			pixel = y * width + x;
-			
 			Ray ray = Ray(camera.eye, Vector(x, y, 0) - camera.eye);
-			
-			for (int i = 0; i < scene.spheres.size(); ++i) {
-				
-				if (ray.intersect(scene.spheres[i]).first) {
-					
-					Vector result = rayTracer.pixelCompute(ray, sphere1, ray.intersect(scene.spheres[i]).second);
+			Vector point = Vector();
+			bool alreadyIntersected = false;
+			pair<bool, Vector> intersection;
+			for (std::vector<Sphere>::iterator i = scene.spheres.begin(); i != scene.spheres.end(); ++i)
+			{
+
+				intersection = ray.intersect(*i);
+				if (intersection.first && !alreadyIntersected) {
+					alreadyIntersected = true; if (test == true) { test = false; cout << "On a eu un match!" << endl; }
+					point = intersection.second;
+					Vector result = rayTracer.pixelCompute(ray, *i, point);
 					pixels[pixel].r = result.x;
 					pixels[pixel].g = result.y;
 					pixels[pixel].b = result.z;
-					
-				} else {
-					
-					pixels[pixel].r = 255;
-					pixels[pixel].g = 255;
-					pixels[pixel].b = 255;
+
 				}
+				else if (intersection.first && alreadyIntersected) {
+					Vector temp1 = Vector();
+					temp1 = point - camera.eye;
+					Vector temp2 = Vector();
+					temp2 = intersection.second - camera.eye;
+					if (temp2.norm() < temp1.norm()) {
+						point = intersection.second; Vector result = rayTracer.pixelCompute(ray, *i, intersection.second);
+						pixels[pixel].r = result.x;
+						pixels[pixel].g = result.y;
+						pixels[pixel].b = result.z;
+					}
+				}
+				
+			}if (!alreadyIntersected) {
+				pixels[pixel].r = 255;
+				pixels[pixel].g = 255;
+				pixels[pixel].b = 255;
 			}
 		}
 	}
-	
-	savebmp("image.bmp", width, heigth, dpi, pixels);
-	
+
+	savebmp("image4.bmp", width, heigth, dpi, pixels);
+
 	cout << "Image rendered successfully." << endl;
-	
+	int end;
+	cin >> end;
 	return 0;
 }
