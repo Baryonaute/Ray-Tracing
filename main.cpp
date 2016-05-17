@@ -142,15 +142,15 @@ int main(int argc, char ** argv) {
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);//initialisation de la variable my_rank
 	MPI_Comm_size(MPI_COMM_WORLD, &p);//nombre des processus
-	if (my_rank != 0) {int* pixels = new int[3*((width*height)/p)];
+	if (my_rank != 0) {int* pixels = new int[3*((width*height)/(p-1))];
 		/*for (int x = 0; x < width/p; ++x){
 		for (int y = 0; y < heigth; ++y) {*/
 cout<< "Process"<<my_rank<<endl;
-		for(int pixel = 0; pixel < (width*height)/p; ++pixel){			
+		for(int pixel = 0; pixel < (width*height)/(p-1); ++pixel){			
 /*pixel = y * width + x;*/
 int x = pixel%width;
 int y= (pixel -x)/width;
-y = y + my_rank*(height/p);
+y = y + my_rank*(height/(p-1));
 			Ray ray = Ray(camera.eye, Vector(x, y, 0) - camera.eye);
 			Vector point = Vector();
 			bool alreadyIntersected = false;
@@ -190,24 +190,27 @@ y = y + my_rank*(height/p);
 
 		MPI_Send(pixels, 3 * (width*height)/p, MPI_INT, 0, tag, MPI_COMM_WORLD);
 cout<<"Process"<<my_rank<<"job complete"<< endl;
+MPI_Finalize();
 	}
 	if (my_rank == 0) {cout<< "Process 0 start receiving"<<endl;
 		int* pixels; pixels = new int[3*(width*height)/p]; RGBType* resultat = new RGBType[n];
 		for (source = 1; source < p; source++) {
 			MPI_Recv(pixels, 3 * (width*height)/p, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
 			cout<<"receiving"<<source<<endl;
-for (int i = 0; i < height; ++i) {
-	resultat[source*n/p + i].r = pixels[3 * i];
-	resultat[source*n/p + i].g = pixels[3 * i + 1];
-	resultat[source*n/p  + i].b = pixels[3 * i + 2];
-}
+		for (int i = 0; i < (width*height)/p; ++i) {
+	resultat[(source-1)*n/(p-1) + i].r = pixels[3 * i];
+	resultat[(source-1)*n/(p-1) + i].g = pixels[3 * i + 1];
+	resultat[(source-1)*n/(p-1)  + i].b = pixels[3 * i + 2];
+							}
 		}
 savebmp("image_MPI.bmp", width, height, dpi, resultat);
+cout << "Image rendered successfully." << endl;
 	}
-MPI_Finalize();
 
 
-	cout << "Image rendered successfully." << endl;
+
+	
 
 	return 0;
+
 }
