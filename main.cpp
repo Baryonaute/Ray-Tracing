@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "mpi.h"
 #include <iostream>
 #include <fstream>
@@ -96,7 +95,7 @@ void savebmp(const char *filename, int width, int height, int dpi, RGBType *data
 
 int main(int argc, char ** argv) {
 
-	std::cout << "Rendering..." << endl;
+	//std::cout << "Rendering..." << endl;
 	//ajout pour MPI
 	int my_rank;
 	int p;
@@ -121,7 +120,7 @@ int main(int argc, char ** argv) {
 	spheres.push_back(sphere2);
 	spheres.push_back(sphere3);
 
-	Camera camera = Camera(); // Caméra par défaut dans un premier temps
+	Camera camera = Camera(); // Camï¿½ra par dï¿½faut dans un premier temps
 	Scene scene = Scene(spheres, lights);
 	RayTracer rayTracer = RayTracer(camera, scene, 0, 0.7, 0.5, 5);
 
@@ -135,19 +134,23 @@ int main(int argc, char ** argv) {
 
 	int dpi = 72;
 	int width = camera.width;
-	int heigth = camera.height;
-	int n = width * heigth;
+	int height = camera.height;
+	int n = width * height;
 
 	int pixel;
 	MPI_Status status;
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);//initialisation de la variable my_rank
 	MPI_Comm_size(MPI_COMM_WORLD, &p);//nombre des processus
-	if (my_rank != 0) {
-		int* pixels = new int[3 * heigth];
-		int x = my_rank;
-		for (int y = 0; y < heigth; ++y) {
-			pixel = y * width + x;
+	if (my_rank != 0) {int* pixels = new int[3*((width*height)/p)];
+		/*for (int x = 0; x < width/p; ++x){
+		for (int y = 0; y < heigth; ++y) {*/
+cout<< "Process"<<my_rank<<endl;
+		for(int pixel = 0; pixel < (width*height)/p; ++pixel){			
+/*pixel = y * width + x;*/
+int x = pixel%width;
+int y= (pixel -x)/width;
+y = y + my_rank*(height/p);
 			Ray ray = Ray(camera.eye, Vector(x, y, 0) - camera.eye);
 			Vector point = Vector();
 			bool alreadyIntersected = false;
@@ -184,27 +187,25 @@ int main(int argc, char ** argv) {
 				pixels[3 * pixel + 2] = 255;
 			}
 		}
-		MPI_Send(pixels, 3 * heigth, MPI_INT, 0, tag, MPI_COMM_WORLD);
+
+		MPI_Send(pixels, 3 * (width*height)/p, MPI_INT, 0, tag, MPI_COMM_WORLD);
+cout<<"Process"<<my_rank<<"job complete"<< endl;
 	}
-	if (my_rank == 0) {
-		int* pixels; RGBType* resultat = new RGBType[n];
+	if (my_rank == 0) {cout<< "Process 0 start receiving"<<endl;
+		int* pixels; pixels = new int[3*(width*height)/p]; RGBType* resultat = new RGBType[n];
 		for (source = 1; source < p; source++) {
-			MPI_Recv(pixels, 3 * heigth, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
-			for (int i = 0; i < heigth; ++i) {
-				resultat[p*heigth + i].r = pixels[3 * i];
-				resultat[p*heigth + i].g = pixels[3 * i + 1];
-				resultat[p*heigth + i].b = pixels[3 * i + 2];
-			}
+			MPI_Recv(pixels, 3 * (width*height)/p, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
+			cout<<"receiving"<<source<<endl;
+for (int i = 0; i < height; ++i) {
+	resultat[source*n/p + i].r = pixels[3 * i];
+	resultat[source*n/p + i].g = pixels[3 * i + 1];
+	resultat[source*n/p  + i].b = pixels[3 * i + 2];
+}
 		}
-		savebmp("image_MPI.bmp", width, heigth, dpi, resultat);
+savebmp("image_MPI.bmp", width, height, dpi, resultat);
 	}
+MPI_Finalize();
 
-	//for (int x = 0; x < width; ++x) {
-		//if (x == 50) { std::cout << "On rentre dans la boucle" << endl; }
-
-	//}
-
-	MPI_Finalize();
 
 	cout << "Image rendered successfully." << endl;
 
