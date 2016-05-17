@@ -94,35 +94,61 @@ void savebmp (const char *filename, int width, int height, int dpi, RGBType *dat
 
 int main(int argc, const char * argv[]) {
 	
-	cout << "Rendering..." << endl;
-	
 	///////////////////////////////////////
 	//// MISE EN PLACE DE L'EXPERIENCE ////
 	///////////////////////////////////////
 	
-	Light light1 = Light(Vector(0, 120, 30));
-	Light light2 = Light(Vector(480, 360, 300));
+	cout << "///////////////////////////////////////" << endl;
+	cout << "//// MISE EN PLACE DE L'EXPERIENCE ////" << endl;
+	cout << "///////////////////////////////////////" << endl;
+	cout << endl << endl;
+	
+	
+	// Lights
+	
+	Light light1 = Light(Vector(1280, 495, 70));
+	Light light2 = Light(Vector(1280, 465, 70));
 	vector<Light> lights;
-	//lights.push_back(light1);
+	lights.push_back(light1);
 	lights.push_back(light2);
 	
-	Sphere sphere1 = Sphere(Vector(320, 240, 0), 100, Vector(20, 20, 255));
-	Sphere sphere2 = Sphere(Vector(420, 340, 0), 100, Vector(255, 0, 122));
-	vector<Sphere> spheres;
-	spheres.push_back(sphere1);
-	//spheres.push_back(sphere2);
 	
-	Camera camera = Camera(); // Caméra par défaut dans un premier temps
+	// Spheres
+	
+	Sphere blue = Sphere(Vector(1040, 480, 70), 25, Vector(20, 20, 255));
+	Sphere red = Sphere(Vector(640, 480, 0), 150, Vector(255, 20, 20));
+	Sphere green = Sphere(Vector(240, 480, 0), 200, Vector(20, 255, 20));
+	vector<Sphere> spheres;
+	spheres.push_back(blue);
+	spheres.push_back(red);
+	//spheres.push_back(green);
+	
+	
+	// Superstructure
+	
+	Camera camera = Camera(); // Caméra par défaut. Deux autres constructeurs permettent des variantes.
 	Scene scene = Scene(spheres, lights);
 	RayTracer rayTracer = RayTracer(camera, scene, 0.5, 0.6, 8, 200);
 	
-	cout << scene << endl;
-	cout << camera << endl;
+	cout << scene << endl << endl;
+	cout << camera << endl << endl;
 	cout << rayTracer << endl;
+	cout << endl << endl;
+	
 	
 	/////////////////////////////////////////////////
 	//// ENREGISTREMENT DE L'IMAGE AU FORMAT BMP ////
 	/////////////////////////////////////////////////
+	
+	cout << "/////////////////////////////////////////////////" << endl;
+	cout << "//// ENREGISTREMENT DE L'IMAGE AU FORMAT BMP ////" << endl;
+	cout << "/////////////////////////////////////////////////" << endl;
+	cout << endl << endl;
+	
+	cout << "Rendering..." << endl << endl;
+	
+	
+	// Building the image pixel per pixel
 	
 	int dpi = 72;
 	int width = camera.width;
@@ -141,26 +167,54 @@ int main(int argc, const char * argv[]) {
 			
 			Ray ray = Ray(camera.eye, Vector(x, y, 0) - camera.eye);
 			
-			for (int i = 0; i < scene.spheres.size(); ++i) {
+			Vector point;
+			bool intersected = false;
+			pair<bool, Vector> intersection;
+			
+			for (vector<Sphere>::iterator sphere = scene.spheres.begin(); sphere != scene.spheres.end(); ++sphere) {
 				
-				if (ray.intersect(scene.spheres[i]).first) {
+				intersection = ray.intersect(*sphere);
+				
+				if (intersection.first && !intersected) {
 					
-					Vector result = rayTracer.pixelCompute(ray, sphere1, ray.intersect(scene.spheres[i]).second);
+					intersected = true;
+					point = intersection.second;
+					
+					Vector result = rayTracer.pixelCompute(ray, *sphere, point);
 					pixels[pixel].r = result.x;
 					pixels[pixel].g = result.y;
 					pixels[pixel].b = result.z;
 					
-				} else {
+				} else if (intersection.first && intersected) {
 					
-					pixels[pixel].r = 255;
-					pixels[pixel].g = 255;
-					pixels[pixel].b = 255;
+					Vector tmp1 = point - camera.eye;
+					Vector tmp2 = intersection.second - camera.eye;
+					
+					if (tmp2.norm() < tmp1.norm()) {
+						
+						point = intersection.second;
+						
+						Vector result = rayTracer.pixelCompute(ray, *sphere, point);
+						pixels[pixel].r = result.x;
+						pixels[pixel].g = result.y;
+						pixels[pixel].b = result.z;
+					}
 				}
+			}
+			
+			if (!intersected) {
+				
+				pixels[pixel].r = 255;
+				pixels[pixel].g = 255;
+				pixels[pixel].b = 255;
 			}
 		}
 	}
 	
-	savebmp("image.bmp", width, heigth, dpi, pixels);
+	
+	// Saving the image
+	
+	savebmp("image3.bmp", width, heigth, dpi, pixels);
 	
 	cout << "Image rendered successfully." << endl;
 	

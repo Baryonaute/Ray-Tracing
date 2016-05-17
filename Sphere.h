@@ -28,3 +28,7 @@ class Sphere {
 // Affichage console
 
 ostream& operator<<(ostream& os, const Sphere& s);
+
+// Surcharge de l'opérateur "=="
+
+bool operator==(Sphere const& sphere1, Sphere const& sphere2);

@@ -12,7 +12,7 @@ class Light {
 	// Coordonnées
 	
 	Vector source;
-	Vector color; // TODO : remplacer par un objet de la classe Color
+	Vector color;
 	
 	// Constructeurs
 	

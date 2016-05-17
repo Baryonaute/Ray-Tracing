@@ -29,6 +29,18 @@ ostream& operator<<(ostream& os, const Sphere& s) {
 }
 
 
+// Surcharge de l'opérateur "=="
+
+bool operator==(Sphere const& sphere1, Sphere const& sphere2) {
+	
+	if (sphere1.center.x == sphere2.center.x && sphere1.center.y == sphere2.center.y
+		&& sphere1.center.z == sphere2.center.z && sphere1.color.x == sphere2.color.x
+		&& sphere1.color.y == sphere2.color.y && sphere1.color.z == sphere2.color.z
+		&& sphere1.radius == sphere2.radius) return true;
+	
+	return false;
+}
+
 // Destructeur
 
 Sphere::~Sphere() {

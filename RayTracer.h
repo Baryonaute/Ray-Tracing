@@ -11,10 +11,13 @@ class RayTracer {
 	
 	public :
 	
-	// Données
+	// Setup
 	
 	Camera camera;
 	Scene scene;
+	
+	// Coefficients du modèle de Phong
+	
 	double ka; // Phong model : ambient light coeff
 	double kd; // Phong model : diffuse light coeff
 	double ks; // Phong model : specular light coeff

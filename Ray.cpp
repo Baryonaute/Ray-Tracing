@@ -15,7 +15,6 @@ Ray::Ray(Vector point, Vector direction) {
 	
 	this->point = point;
 	direction.normalize();
-	//cout << "Ray_Direction error : " << direction << endl;
 	this->direction = direction;
 }
 
@@ -84,7 +83,6 @@ pair<bool, Vector> Ray::intersect(Sphere s) {
 				result = p + root2 * d;
 				
 			}
-			
 		}
 	}
 	

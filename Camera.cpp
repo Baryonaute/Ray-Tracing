@@ -11,11 +11,11 @@ Camera::Camera() {
 	Vector j = Vector(0, 1, 0);
 	Vector k = i.vectorial(j);
 	
-	this->eye = Vector(320, 240, 400);
-	this->target = 500 * j;
+	this->eye = Vector(640, 480, 1000000);
+	this->target = -400 * k;
 	this->orientation = k;
-	this->width = 640;
-	this->height = 480;
+	this->width = 1280;
+	this->height = 960;
 }
 
 Camera::Camera(Vector eye, Vector target, Vector orientation) {
