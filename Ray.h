@@ -24,7 +24,7 @@ class Ray {
 	// Intersection avec une sphère
 	
 	pair<bool, Vector> intersect(Sphere s);
-	pair<bool, pair<Sphere, Vector>> intersects(vector<Sphere> spheres);
+	pair<bool, pair<Sphere, Vector> > intersects(vector<Sphere> spheres);
 	
 	// Destructeur
 	

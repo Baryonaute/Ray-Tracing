@@ -82,7 +82,7 @@ Vector RayTracer::recursivePixelCompute(Ray ray, int depth) {
 	
 	if (depth > max_depth) return Vector(0, 0, 0);
 	
-	pair<bool, pair<Sphere, Vector>> intersection = ray.intersects(scene.spheres);
+	pair<bool, pair<Sphere, Vector> > intersection = ray.intersects(scene.spheres);
 	Sphere sphere = intersection.second.first;
 	Vector point = intersection.second.second;
 	

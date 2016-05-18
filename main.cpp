@@ -1,3 +1,5 @@
+#include "mpi.h"
+#include <sys/time.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -92,23 +94,18 @@ void savebmp (const char *filename, int width, int height, int dpi, RGBType *dat
 	fclose(f);
 }
 
-int main(int argc, const char * argv[]) {
+int main(int argc, char ** argv) {
 	
 	///////////////////////////////////////
 	//// MISE EN PLACE DE L'EXPERIENCE ////
 	///////////////////////////////////////
-	
-	cout << "///////////////////////////////////////" << endl;
-	cout << "//// MISE EN PLACE DE L'EXPERIENCE ////" << endl;
-	cout << "///////////////////////////////////////" << endl;
-	cout << endl << endl;
-	
+
 	
 	// Lights
 	
-	Light light1 = Light(Vector(1280, 495, 70));
-	Light light2 = Light(Vector(1280, 465, 70));
-	Light light3 = Light(Vector(70, 200, 400));
+	Light light1 = Light(Vector(1280*2, 495*2, 70*2));
+	Light light2 = Light(Vector(1280*2, 465*2, 70*2));
+	Light light3 = Light(Vector(70*2, 200*2, 400*2));
 	vector<Light> lights;
 	lights.push_back(light1);
 	lights.push_back(light2);
@@ -117,9 +114,9 @@ int main(int argc, const char * argv[]) {
 	
 	// Spheres
 	
-	Sphere blue = Sphere(Vector(1040, 480, 70), 25, Vector(20, 20, 255), 0.1);
-	Sphere red = Sphere(Vector(640, 480, -200), 200, Vector(255, 20, 20), 0.4);
-	Sphere green = Sphere(Vector(240, 480, 0), 200, Vector(20, 255, 20), 0.4);
+	Sphere blue = Sphere(Vector(1040*2, 480*2, 70*2), 25*2, Vector(20, 20, 255), 0.1);
+	Sphere red = Sphere(Vector(640*2, 480*2, -200*2), 200*2, Vector(255, 20, 20), 0.4);
+	Sphere green = Sphere(Vector(240*2, 480*2, 0*2), 200*2, Vector(20, 255, 20), 0.4);
 	vector<Sphere> spheres;
 	spheres.push_back(blue);
 	spheres.push_back(red);
@@ -132,22 +129,10 @@ int main(int argc, const char * argv[]) {
 	Scene scene = Scene(spheres, lights);
 	RayTracer rayTracer = RayTracer(camera, scene, 1, 0.5, 0.6, 8, 200);
 	
-	cout << scene << endl << endl;
-	cout << camera << endl << endl;
-	cout << rayTracer << endl;
-	cout << endl << endl;
-	
 	
 	/////////////////////////////////////////////////
 	//// ENREGISTREMENT DE L'IMAGE AU FORMAT BMP ////
 	/////////////////////////////////////////////////
-	
-	cout << "/////////////////////////////////////////////////" << endl;
-	cout << "//// ENREGISTREMENT DE L'IMAGE AU FORMAT BMP ////" << endl;
-	cout << "/////////////////////////////////////////////////" << endl;
-	cout << endl << endl;
-	
-	cout << "Rendering..." << endl << endl;
 	
 	
 	// Construction de l'image pixel par pixel
@@ -156,87 +141,117 @@ int main(int argc, const char * argv[]) {
 	int width = camera.width;
 	int height = camera.height;
 	int n = width * height;
-	
+
 	int pixel;
-	
-	RGBType* pixels = new RGBType[n];
-	
-	for (int x = 0; x < width; ++x) {
+
+	// Variables et paramètres MPI
+
+	int my_rank;
+	int p;
+	int source;
+	int tag = 50;
+
+	/*
+	MESURE DU TEMPS POUR PC
+	clock_t t1, t2;
+	t1 = clock();
+	*/
+
+	/*
+	MESURE DU TEMPS POUR MAC
+	*/
+
+	timeval t1, t2;
+	gettimeofday(&t1, NULL);
+
+	MPI_Status status;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank); // initialisation de la variable my_rank
+	MPI_Comm_size(MPI_COMM_WORLD, &p); // nombre des processus
+
+	if (my_rank != 0) {
+
+		int step = (width * height) / (p - 1);
+		int* pixels = new int[3 * step];
 		
-		for (int y = 0; y < height; ++y) {
-			
-			pixel = y * width + x;
-			
+		//cout << "Process " << my_rank <<" began"<< endl;
+
+		for (int pixel = 0; pixel < step; ++pixel) {
+
+			int x = ((my_rank - 1) * step + pixel) % width;
+			int y = (pixel - x) / width + (my_rank - 1) * (height / (p - 1));
+
 			Ray ray = Ray(camera.eye, Vector(x, y, 0) - camera.eye);
-			
+
 			if (ray.intersects(rayTracer.scene.spheres).first) {
 				
 				Vector result = rayTracer.recursivePixelCompute(ray, 0);
 				
-				pixels[pixel].r = result.x;
-				pixels[pixel].g = result.y;
-				pixels[pixel].b = result.z;
+				pixels[3 * pixel] = result.x;
+				pixels[3 * pixel + 1] = result.y;
+				pixels[3 * pixel + 2] = result.z;
 				
 			} else {
 				
-				pixels[pixel].r = 255;
-				pixels[pixel].g = 255;
-				pixels[pixel].b = 255;
+				pixels[3 * pixel] = 255;
+				pixels[3 * pixel + 1] = 255;
+				pixels[3 * pixel + 2] = 255;
 				
 			}
-			
-			/*
-			Vector point;
-			bool intersected = false;
-			pair<bool, Vector> intersection;
-		
-			for (vector<Sphere>::iterator sphere = scene.spheres.begin(); sphere != scene.spheres.end(); ++sphere) {
-				
-				intersection = ray.intersect(*sphere);
-				
-				if (intersection.first && !intersected) {
-					
-					intersected = true;
-					point = intersection.second;
-					
-					Vector result = rayTracer.pixelCompute(ray, *sphere, point);
-					pixels[pixel].r = result.x;
-					pixels[pixel].g = result.y;
-					pixels[pixel].b = result.z;
-					
-				} else if (intersection.first && intersected) {
-					
-					Vector tmp1 = point - camera.eye;
-					Vector tmp2 = intersection.second - camera.eye;
-					
-					if (tmp2.norm() < tmp1.norm()) {
-						
-						point = intersection.second;
-						
-						Vector result = rayTracer.pixelCompute(ray, *sphere, point);
-						pixels[pixel].r = result.x;
-						pixels[pixel].g = result.y;
-						pixels[pixel].b = result.z;
-					}
-				}
-			}
-			
-			if (!intersected) {
-				
-				pixels[pixel].r = 255;
-				pixels[pixel].g = 255;
-				pixels[pixel].b = 255;
-			}
-			 */
 		}
+
+		MPI_Send(pixels, 3 * step, MPI_INT, 0, tag, MPI_COMM_WORLD);
+		//cout << "Process " << my_rank << " ended successfully" << endl;
+		delete[] pixels;
+		MPI_Finalize();
 	}
-	
-	
-	// Enregistrement de l'image
-	
-	savebmp("image3.bmp", width, height, dpi, pixels);
-	
-	cout << "Image rendered successfully." << endl;
-	
+
+	if (my_rank == 0) {
+
+		//cout << "Main process waiting..." << endl;
+
+		int step = (width * height) / (p - 1);
+		int* pixels = new int[3 * step];
+		RGBType* resultat = new RGBType[n];
+
+		for (source = 1; source < p; source++) {
+
+			MPI_Recv(pixels, 3 * step, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
+			//cout << "Receiving from " << source << endl;
+
+			for (int i = 0; i < step; ++i) {
+
+				resultat[(source - 1) * n / (p - 1) + i].r = pixels[3 * i];
+				resultat[(source - 1) * n / (p - 1) + i].g = pixels[3 * i + 1];
+				resultat[(source - 1) * n / (p - 1) + i].b = pixels[3 * i + 2];
+			}
+		}
+
+		delete[] pixels;
+		delete[] resultat;
+
+		savebmp("image_MPI.bmp", width, height, dpi, resultat);
+		//cout << "Image rendered successfully" << endl;
+		
+		/*
+		MESURE DU TEMPS POUR PC
+		t2 = clock();
+		float diff = (float)t2 - (float)t1;
+		cout << diff << endl;
+		*/
+
+		/*
+		MESURE DU TEMPS POUR MAC
+		*/
+
+		gettimeofday(&t2, NULL);
+
+		double elapsed = (t2.tv_sec - t1.tv_sec) * 1000.0; // sec to ms
+		elapsed += (t2.tv_usec - t1.tv_usec) / 1000.0; // us to ms
+		cout << "Running time : " << elapsed << " ms" << endl;
+
+		MPI_Finalize();
+	}
+
 	return 0;
 }
