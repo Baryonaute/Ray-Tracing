@@ -227,12 +227,12 @@ int main(int argc, char ** argv) {
 			}
 		}
 
-		delete[] pixels;
-		delete[] resultat;
-
 		savebmp("image_MPI.bmp", width, height, dpi, resultat);
 		//cout << "Image rendered successfully" << endl;
 		
+		delete[] pixels;
+		delete[] resultat;
+
 		/*
 		MESURE DU TEMPS POUR PC
 		t2 = clock();
