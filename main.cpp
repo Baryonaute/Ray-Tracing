@@ -138,9 +138,6 @@ int main(int argc, const char * argv[]) {
 	cout << rayTracer << endl;
 	cout << endl << endl;
 	
-	Ray ray1 = Ray(rayTracer.camera.eye, (Vector(640, 480, 0) - rayTracer.camera.eye));
-	cout << ray1.intersects(rayTracer.scene.spheres).first << endl;
-	
 	
 	/////////////////////////////////////////////////
 	//// ENREGISTREMENT DE L'IMAGE AU FORMAT BMP ////
@@ -236,7 +233,7 @@ int main(int argc, const char * argv[]) {
 	}
 	
 	
-	// Saving the image
+	// Enregistrement de l'image
 	
 	savebmp("image3.bmp", width, height, dpi, pixels);
 	

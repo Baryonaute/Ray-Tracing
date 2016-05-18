@@ -96,8 +96,6 @@ pair<bool, pair<Sphere, Vector>> Ray::intersects(vector<Sphere> s) {
 	Sphere sph;
 	Vector point2;
 	bool deja = false;
-	pair<bool, pair<Sphere, Vector>> intersection;
-	pair<Sphere, Vector> coordinates;
 	
 	for (vector<Sphere>::iterator p = s.begin(); p != s.end(); ++p) {
 		
@@ -124,22 +122,9 @@ pair<bool, pair<Sphere, Vector>> Ray::intersects(vector<Sphere> s) {
 		}
 	}
 	
-	if (deja) {
-		
-		coordinates.first = sph;
-		coordinates.second = point2;
-		intersection.first = true;
-		intersection.second = coordinates;
-		
-		//return make_pair(deja, make_pair(sph, point2));
-		
-		return intersection;
-		
-	} else {
-		
-		return make_pair(false, make_pair(Sphere(), Vector()));
+	if (deja) return make_pair(deja, make_pair(sph, point2));
 	
-	}
+	else return make_pair(false, make_pair(Sphere(), Vector()));
 }
 
 // Affichage console
