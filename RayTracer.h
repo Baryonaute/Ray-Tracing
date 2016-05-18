@@ -15,6 +15,7 @@ class RayTracer {
 	
 	Camera camera;
 	Scene scene;
+	int max_depth; // Niveau de récursivité pour le calcul de la réflexion
 	
 	// Coefficients du modèle de Phong
 	
@@ -25,11 +26,12 @@ class RayTracer {
 	
 	// Constructeur
 	
-	RayTracer(Camera camera, Scene scene, double ka, double kd, double ks, double alpha);
+	RayTracer(Camera camera, Scene scene, int max_depth, double ka, double kd, double ks, double alpha);
 	
 	// Calcul de la couleur d'un pixel en RGB
 	
 	Vector pixelCompute(Ray ray, Sphere sphere, Vector point);
+	Vector recursivePixelCompute(Ray ray, int depth);
 	
 	// Destructeur
 	

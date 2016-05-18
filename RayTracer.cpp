@@ -5,10 +5,11 @@ using namespace std;
 
 // Constructeur
 
-RayTracer::RayTracer(Camera camera, Scene scene, double ka, double kd, double ks, double alpha) {
+RayTracer::RayTracer(Camera camera, Scene scene, int max_depth, double ka, double kd, double ks, double alpha) {
 	
 	this->camera = camera;
 	this->scene = scene;
+	this->max_depth = max_depth; // Niveau de récursivité pour le calcul de la réflexion
 	this->ka = ka; // Phong model : ambient light coeff
 	this->kd = kd; // Phong model : diffuse light coeff
 	this->ks = ks; // Phong model : specular light coeff
@@ -75,6 +76,33 @@ Vector RayTracer::pixelCompute(Ray ray, Sphere sphere, Vector point) {
 	return result;
 }
 
+Vector RayTracer::recursivePixelCompute(Ray ray, int depth) {
+	
+	Vector result = Vector(0, 0, 0);
+	
+	if (depth > max_depth) return Vector(0, 0, 0);
+	
+	pair<bool, pair<Sphere, Vector>> intersection = ray.intersects(scene.spheres);
+	Sphere sphere = intersection.second.first;
+	Vector point = intersection.second.second;
+	
+	if (intersection.first) {
+		
+		result = result + pixelCompute(ray, sphere, point);
+		
+		if (sphere.r > 0) {
+			
+			Vector n = point - sphere.center;
+			n.normalize();
+			
+			Ray reflected = Ray(point - 0.01 * ray.direction, -2 * (ray.direction * n) * n + ray.direction);
+			
+			result = result + sphere.r * recursivePixelCompute(reflected, depth + 1); // on applique le coefficient de réflexion
+		}
+	}
+	
+	return result;
+}
 
 // Affichage console
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <math.h>
 #include <iostream>
+#include <vector>
 #include "Vector.h"
 #include "Sphere.h"
 
@@ -23,6 +24,7 @@ class Ray {
 	// Intersection avec une sphère
 	
 	pair<bool, Vector> intersect(Sphere s);
+	pair<bool, pair<Sphere, Vector>> intersects(vector<Sphere> spheres);
 	
 	// Destructeur
 	

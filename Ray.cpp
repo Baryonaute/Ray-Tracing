@@ -89,6 +89,59 @@ pair<bool, Vector> Ray::intersect(Sphere s) {
 	return pair<bool, Vector>(true, result);
 }
 
+// Intersection tout court
+
+pair<bool, pair<Sphere, Vector>> Ray::intersects(vector<Sphere> s) {
+	
+	Sphere sph;
+	Vector point2;
+	bool deja = false;
+	pair<bool, pair<Sphere, Vector>> intersection;
+	pair<Sphere, Vector> coordinates;
+	
+	for (vector<Sphere>::iterator p = s.begin(); p != s.end(); ++p) {
+		
+		pair<bool, Vector> result = this->intersect(*p);
+		
+		if (result.first) {
+			
+			if (!deja) {
+				
+				sph = *p;
+				point2 = result.second;
+				
+			} else if (deja) {
+				
+				if ((point - point2).norm() > (point - result.second).norm()) {
+					
+					point2 = result.second;
+					sph = *p;
+					
+				}
+			}
+			
+			deja = true;
+		}
+	}
+	
+	if (deja) {
+		
+		coordinates.first = sph;
+		coordinates.second = point2;
+		intersection.first = true;
+		intersection.second = coordinates;
+		
+		//return make_pair(deja, make_pair(sph, point2));
+		
+		return intersection;
+		
+	} else {
+		
+		return make_pair(false, make_pair(Sphere(), Vector()));
+	
+	}
+}
+
 // Affichage console
 
 ostream& operator<<(ostream& os, const Ray& r) {

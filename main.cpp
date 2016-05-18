@@ -108,32 +108,38 @@ int main(int argc, const char * argv[]) {
 	
 	Light light1 = Light(Vector(1280, 495, 70));
 	Light light2 = Light(Vector(1280, 465, 70));
+	Light light3 = Light(Vector(420, 465, 500));
 	vector<Light> lights;
 	lights.push_back(light1);
 	lights.push_back(light2);
+	lights.push_back(light3);
+	
 	
 	
 	// Spheres
 	
-	Sphere blue = Sphere(Vector(1040, 480, 70), 25, Vector(20, 20, 255));
-	Sphere red = Sphere(Vector(640, 480, 0), 150, Vector(255, 20, 20));
-	Sphere green = Sphere(Vector(240, 480, 0), 200, Vector(20, 255, 20));
+	Sphere blue = Sphere(Vector(1040, 480, 70), 25, Vector(20, 20, 255), 0.7);
+	Sphere red = Sphere(Vector(640, 480, 0), 150, Vector(255, 20, 20), 0.7);
+	Sphere green = Sphere(Vector(240, 480, 0), 200, Vector(20, 255, 20), 0.7);
 	vector<Sphere> spheres;
 	spheres.push_back(blue);
 	spheres.push_back(red);
-	//spheres.push_back(green);
+	spheres.push_back(green);
 	
 	
 	// Superstructure
 	
 	Camera camera = Camera(); // Caméra par défaut. Deux autres constructeurs permettent des variantes.
 	Scene scene = Scene(spheres, lights);
-	RayTracer rayTracer = RayTracer(camera, scene, 0.5, 0.6, 8, 200);
+	RayTracer rayTracer = RayTracer(camera, scene, 1, 0.5, 0.6, 8, 200);
 	
 	cout << scene << endl << endl;
 	cout << camera << endl << endl;
 	cout << rayTracer << endl;
 	cout << endl << endl;
+	
+	Ray ray1 = Ray(rayTracer.camera.eye, (Vector(640, 480, 0) - rayTracer.camera.eye));
+	cout << ray1.intersects(rayTracer.scene.spheres).first << endl;
 	
 	
 	/////////////////////////////////////////////////
@@ -148,12 +154,12 @@ int main(int argc, const char * argv[]) {
 	cout << "Rendering..." << endl << endl;
 	
 	
-	// Building the image pixel per pixel
+	// Construction de l'image pixel par pixel
 	
 	int dpi = 72;
 	int width = camera.width;
-	int heigth = camera.height;
-	int n = width * heigth;
+	int height = camera.height;
+	int n = width * height;
 	
 	int pixel;
 	
@@ -161,16 +167,33 @@ int main(int argc, const char * argv[]) {
 	
 	for (int x = 0; x < width; ++x) {
 		
-		for (int y = 0; y < heigth; ++y) {
+		for (int y = 0; y < height; ++y) {
 			
 			pixel = y * width + x;
 			
 			Ray ray = Ray(camera.eye, Vector(x, y, 0) - camera.eye);
 			
+			if (ray.intersects(rayTracer.scene.spheres).first) {
+				
+				Vector result = rayTracer.recursivePixelCompute(ray, 0);
+				
+				pixels[pixel].r = result.x;
+				pixels[pixel].g = result.y;
+				pixels[pixel].b = result.z;
+				
+			} else {
+				
+				pixels[pixel].r = 255;
+				pixels[pixel].g = 255;
+				pixels[pixel].b = 255;
+				
+			}
+			
+			/*
 			Vector point;
 			bool intersected = false;
 			pair<bool, Vector> intersection;
-			
+		
 			for (vector<Sphere>::iterator sphere = scene.spheres.begin(); sphere != scene.spheres.end(); ++sphere) {
 				
 				intersection = ray.intersect(*sphere);
@@ -208,13 +231,14 @@ int main(int argc, const char * argv[]) {
 				pixels[pixel].g = 255;
 				pixels[pixel].b = 255;
 			}
+			 */
 		}
 	}
 	
 	
 	// Saving the image
 	
-	savebmp("image3.bmp", width, heigth, dpi, pixels);
+	savebmp("image3.bmp", width, height, dpi, pixels);
 	
 	cout << "Image rendered successfully." << endl;
 	
