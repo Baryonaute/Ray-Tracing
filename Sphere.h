@@ -14,11 +14,12 @@ class Sphere {
 	Vector center;
 	double radius;
 	Vector color;
+	double r; // coefficient de réflexion
 	
 	// Constructeurs
 
 	Sphere();
-	Sphere(Vector center, double radius, Vector color);
+	Sphere(Vector center, double radius, Vector color, double r);
 
 	// Destructeur
 	
@@ -28,3 +29,7 @@ class Sphere {
 // Affichage console
 
 ostream& operator<<(ostream& os, const Sphere& s);
+
+// Surcharge de l'opérateur "=="
+
+bool operator==(Sphere const& sphere1, Sphere const& sphere2);

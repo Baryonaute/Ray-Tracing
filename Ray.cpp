@@ -15,7 +15,6 @@ Ray::Ray(Vector point, Vector direction) {
 	
 	this->point = point;
 	direction.normalize();
-	//cout << "Ray_Direction error : " << direction << endl;
 	this->direction = direction;
 }
 
@@ -84,11 +83,48 @@ pair<bool, Vector> Ray::intersect(Sphere s) {
 				result = p + root2 * d;
 				
 			}
-			
 		}
 	}
 	
 	return pair<bool, Vector>(true, result);
+}
+
+// Intersection tout court
+
+pair<bool, pair<Sphere, Vector>> Ray::intersects(vector<Sphere> s) {
+	
+	Sphere sph;
+	Vector point2;
+	bool deja = false;
+	
+	for (vector<Sphere>::iterator p = s.begin(); p != s.end(); ++p) {
+		
+		pair<bool, Vector> result = this->intersect(*p);
+		
+		if (result.first) {
+			
+			if (!deja) {
+				
+				sph = *p;
+				point2 = result.second;
+				
+			} else if (deja) {
+				
+				if ((point - point2).norm() > (point - result.second).norm()) {
+					
+					point2 = result.second;
+					sph = *p;
+					
+				}
+			}
+			
+			deja = true;
+		}
+	}
+	
+	if (deja) return make_pair(deja, make_pair(sph, point2));
+	
+	else return make_pair(false, make_pair(Sphere(), Vector()));
 }
 
 // Affichage console

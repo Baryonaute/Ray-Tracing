@@ -9,6 +9,7 @@ Scene::Scene() {
 	
 	vector<Sphere> spheres;
 	spheres.push_back(Sphere());
+	
 	vector<Light> lights;
 	lights.push_back(Light());
 	

@@ -11,10 +11,14 @@ class RayTracer {
 	
 	public :
 	
-	// Données
+	// Setup
 	
 	Camera camera;
 	Scene scene;
+	int max_depth; // Niveau de récursivité pour le calcul de la réflexion
+	
+	// Coefficients du modèle de Phong
+	
 	double ka; // Phong model : ambient light coeff
 	double kd; // Phong model : diffuse light coeff
 	double ks; // Phong model : specular light coeff
@@ -22,11 +26,12 @@ class RayTracer {
 	
 	// Constructeur
 	
-	RayTracer(Camera camera, Scene scene, double ka, double kd, double ks, double alpha);
+	RayTracer(Camera camera, Scene scene, int max_depth, double ka, double kd, double ks, double alpha);
 	
 	// Calcul de la couleur d'un pixel en RGB
 	
 	Vector pixelCompute(Ray ray, Sphere sphere, Vector point);
+	Vector recursivePixelCompute(Ray ray, int depth);
 	
 	// Destructeur
 	

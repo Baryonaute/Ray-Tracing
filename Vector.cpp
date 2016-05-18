@@ -59,7 +59,7 @@ void Vector::normalize() {
 	
 	if (n == 0) {
 		
-		std::cout << "This vector is null. It can't be normalized.\n";
+		std::cout << "Program intended to normalize a null vector" << endl;
 		
 	} else {
 		
@@ -79,7 +79,7 @@ Vector operator+(Vector const& v, Vector const& w) { // addition
 	return result;
 }
 
-Vector operator-(Vector const& v, Vector const& w) { // substraction
+Vector operator-(Vector const& v, Vector const& w) { // soustraction
 	
 	Vector copy = v;
 	Vector result = copy.substract(w);
@@ -104,13 +104,6 @@ Vector operator*(double const& l, Vector const& v) { // multiplication par un sc
 	
 	Vector copy = v;
 	Vector result = copy.multiply(l);
-	return result;
-}
-
-Vector operator^(Vector const& v, Vector const& w) { // produit vectoriel
-	
-	Vector copy = v;
-	Vector result = copy.vectorial(w);
 	return result;
 }
 
