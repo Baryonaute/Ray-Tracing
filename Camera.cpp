@@ -11,7 +11,7 @@ Camera::Camera() {
 	Vector j = Vector(0, 1, 0);
 	Vector k = i.vectorial(j);
 	
-	this->eye = Vector(640, 480, 1000000);
+	this->eye = Vector(640, 480, 1000);
 	this->target = -400 * k;
 	this->orientation = k;
 	this->width = 1280;

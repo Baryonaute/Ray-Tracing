@@ -108,19 +108,18 @@ int main(int argc, const char * argv[]) {
 	
 	Light light1 = Light(Vector(1280, 495, 70));
 	Light light2 = Light(Vector(1280, 465, 70));
-	Light light3 = Light(Vector(420, 465, 500));
+	Light light3 = Light(Vector(70, 200, 400));
 	vector<Light> lights;
 	lights.push_back(light1);
 	lights.push_back(light2);
 	lights.push_back(light3);
 	
 	
-	
 	// Spheres
 	
-	Sphere blue = Sphere(Vector(1040, 480, 70), 25, Vector(20, 20, 255), 0.7);
-	Sphere red = Sphere(Vector(640, 480, 0), 150, Vector(255, 20, 20), 0.7);
-	Sphere green = Sphere(Vector(240, 480, 0), 200, Vector(20, 255, 20), 0.7);
+	Sphere blue = Sphere(Vector(1040, 480, 70), 25, Vector(20, 20, 255), 0.1);
+	Sphere red = Sphere(Vector(640, 480, -200), 200, Vector(255, 20, 20), 0.4);
+	Sphere green = Sphere(Vector(240, 480, 0), 200, Vector(20, 255, 20), 0.4);
 	vector<Sphere> spheres;
 	spheres.push_back(blue);
 	spheres.push_back(red);

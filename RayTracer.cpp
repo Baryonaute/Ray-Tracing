@@ -95,9 +95,15 @@ Vector RayTracer::recursivePixelCompute(Ray ray, int depth) {
 			Vector n = point - sphere.center;
 			n.normalize();
 			
-			Ray reflected = Ray(point - 0.01 * ray.direction, -2 * (ray.direction * n) * n + ray.direction);
+			Ray reflected = Ray(point - 0.0001 * ray.direction, -2 * (ray.direction * n) * n + ray.direction);
 			
-			result = result + sphere.r * recursivePixelCompute(reflected, depth + 1); // on applique le coefficient de réflexion
+			Vector tmp = recursivePixelCompute(reflected, depth + 1);
+			
+			if (tmp.x != 0 || tmp.y != 0 || tmp.z != 0) {
+				
+				result = (1 - sphere.r) * result + sphere.r * recursivePixelCompute(reflected, depth + 1); // on applique le coefficient de réflexion
+				
+			}
 		}
 	}
 	
