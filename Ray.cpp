@@ -91,7 +91,7 @@ pair<bool, Vector> Ray::intersect(Sphere s) {
 
 // Intersection tout court
 
-pair<bool, pair<Sphere, Vector>> Ray::intersects(vector<Sphere> s) {
+pair<bool, pair<Sphere, Vector> > Ray::intersects(vector<Sphere> s) {
 	
 	Sphere sph;
 	Vector point2;
