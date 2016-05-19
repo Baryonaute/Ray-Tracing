@@ -7,11 +7,11 @@ using namespace std;
 
 Camera::Camera() {
 	
-	this->eye = Vector(640*2, 480*2, 1000*2);
+	this->eye = Vector(1280, 960, 100000);
 	this->target = -400 * Vector(0, 0, 1);
 	this->orientation = Vector(0, 0, 1);
-	this->width = 1280*2;
-	this->height = 960*2;
+	this->width = 2560;
+	this->height = 1920;
 }
 
 Camera::Camera(Vector eye, Vector target, Vector orientation) {
@@ -20,8 +20,8 @@ Camera::Camera(Vector eye, Vector target, Vector orientation) {
 	this->target = target;
 	orientation.normalize();
 	this->orientation = orientation;
-	this->width = 640;
-	this->height = 480;
+	this->width = 2560;
+	this->height = 1280;
 }
 
 Camera::Camera(Vector eye, Vector target, Vector orientation, int width, int height) {

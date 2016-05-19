@@ -12,8 +12,8 @@ class Camera {
 	// Coordonnées
 	
 	Vector eye;
-	Vector target;
-	Vector orientation;
+	Vector target; // non utilisé dans le projet
+	Vector orientation; // non utilisé dans le projet
 	int width;
 	int height;
 	

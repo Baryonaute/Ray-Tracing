@@ -81,7 +81,6 @@ pair<bool, Vector> Ray::intersect(Sphere s) {
 			} else {
 				
 				result = p + root2 * d;
-				
 			}
 		}
 	}
@@ -89,42 +88,50 @@ pair<bool, Vector> Ray::intersect(Sphere s) {
 	return pair<bool, Vector>(true, result);
 }
 
-// Intersection tout court
+
+// Intersection avec la scène
 
 pair<bool, pair<Sphere, Vector> > Ray::intersects(vector<Sphere> s) {
 	
-	Sphere sph;
-	Vector point2;
-	bool deja = false;
+	Sphere sphere;
+	Vector intersection;
+	bool intersected = false;
 	
-	for (vector<Sphere>::iterator p = s.begin(); p != s.end(); ++p) {
+	for (vector<Sphere>::iterator sph = s.begin(); sph != s.end(); ++sph) {
 		
-		pair<bool, Vector> result = this->intersect(*p);
+		pair<bool, Vector> result = this->intersect(*sph);
 		
 		if (result.first) {
 			
-			if (!deja) {
+			if (!intersected) {
 				
-				sph = *p;
-				point2 = result.second;
+				sphere = *sph;
+				intersection = result.second;
 				
-			} else if (deja) {
+			} else if (intersected) {
 				
-				if ((point - point2).norm() > (point - result.second).norm()) {
+				Vector tmp1 = point - intersection;
+				Vector tmp2 = point - result.second;
+				
+				if (tmp1.norm() > tmp2.norm()) {
 					
-					point2 = result.second;
-					sph = *p;
-					
+					intersection = result.second;
+					sphere = *sph;
 				}
 			}
 			
-			deja = true;
+			intersected = true;
 		}
 	}
 	
-	if (deja) return make_pair(deja, make_pair(sph, point2));
-	
-	else return make_pair(false, make_pair(Sphere(), Vector()));
+	if (intersected) {
+		
+		return make_pair(intersected, make_pair(sphere, intersection));
+		
+	} else {
+		
+		return make_pair(false, make_pair(Sphere(), Vector()));
+	}
 }
 
 // Affichage console

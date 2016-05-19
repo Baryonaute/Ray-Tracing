@@ -31,6 +31,9 @@ class RayTracer {
 	// Calcul de la couleur d'un pixel en RGB
 	
 	Vector pixelCompute(Ray ray, Sphere sphere, Vector point);
+	
+	// Calcul récursif de la couleur d'un pixel en RGB pour ajouter les effets de réflexion
+	
 	Vector recursivePixelCompute(Ray ray, int depth);
 	
 	// Destructeur

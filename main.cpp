@@ -103,9 +103,9 @@ int main(int argc, char ** argv) {
 	
 	// Lights
 	
-	Light light1 = Light(Vector(1280*2, 495*2, 70*2));
-	Light light2 = Light(Vector(1280*2, 465*2, 70*2));
-	Light light3 = Light(Vector(70*2, 200*2, 400*2));
+	Light light1 = Light(Vector(2560, 990, 140));
+	Light light2 = Light(Vector(2560, 930, 140));
+	Light light3 = Light(Vector(140, 400, 800));
 	vector<Light> lights;
 	lights.push_back(light1);
 	lights.push_back(light2);
@@ -114,9 +114,9 @@ int main(int argc, char ** argv) {
 	
 	// Spheres
 	
-	Sphere blue = Sphere(Vector(1040*2, 480*2, 70*2), 25*2, Vector(20, 20, 255), 0.1);
-	Sphere red = Sphere(Vector(640*2, 480*2, -200*2), 200*2, Vector(255, 20, 20), 0.4);
-	Sphere green = Sphere(Vector(240*2, 480*2, 0*2), 200*2, Vector(20, 255, 20), 0.4);
+	Sphere blue = Sphere(Vector(2080, 960, 140), 50, Vector(20, 20, 255), 0.1);
+	Sphere red = Sphere(Vector(1280, 960, -400), 400, Vector(255, 20, 20), 0.4);
+	Sphere green = Sphere(Vector(480, 960, 0), 400, Vector(20, 255, 20), 0.4);
 	vector<Sphere> spheres;
 	spheres.push_back(blue);
 	spheres.push_back(red);
@@ -143,6 +143,7 @@ int main(int argc, char ** argv) {
 	int n = width * height;
 
 	int pixel;
+
 
 	// Variables et paramètres MPI
 
@@ -174,7 +175,7 @@ int main(int argc, char ** argv) {
 		int step = (width * height) / (p - 1);
 		int* pixels = new int[3 * step];
 		
-		//cout << "Process " << my_rank <<" began"<< endl;
+		cout << "Process " << my_rank <<" began"<< endl;
 
 		for (int pixel = 0; pixel < step; ++pixel) {
 
@@ -196,19 +197,20 @@ int main(int argc, char ** argv) {
 				pixels[3 * pixel] = 255;
 				pixels[3 * pixel + 1] = 255;
 				pixels[3 * pixel + 2] = 255;
-				
 			}
 		}
 
 		MPI_Send(pixels, 3 * step, MPI_INT, 0, tag, MPI_COMM_WORLD);
-		//cout << "Process " << my_rank << " ended successfully" << endl;
+		cout << "Process " << my_rank << " ended successfully" << endl;
+
 		delete[] pixels;
+
 		MPI_Finalize();
 	}
 
 	if (my_rank == 0) {
 
-		//cout << "Main process waiting..." << endl;
+		cout << "Main process waiting..." << endl;
 
 		int step = (width * height) / (p - 1);
 		int* pixels = new int[3 * step];
@@ -217,7 +219,7 @@ int main(int argc, char ** argv) {
 		for (source = 1; source < p; source++) {
 
 			MPI_Recv(pixels, 3 * step, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
-			//cout << "Receiving from " << source << endl;
+			cout << "Receiving from " << source << endl;
 
 			for (int i = 0; i < step; ++i) {
 
@@ -228,7 +230,7 @@ int main(int argc, char ** argv) {
 		}
 
 		savebmp("image_MPI.bmp", width, height, dpi, resultat);
-		//cout << "Image rendered successfully" << endl;
+		cout << "Image rendered successfully" << endl << endl;
 		
 		delete[] pixels;
 		delete[] resultat;
@@ -248,7 +250,7 @@ int main(int argc, char ** argv) {
 
 		double elapsed = (t2.tv_sec - t1.tv_sec) * 1000.0; // sec to ms
 		elapsed += (t2.tv_usec - t1.tv_usec) / 1000.0; // us to ms
-		cout << "Running time : " << elapsed << " ms" << endl;
+		cout << "Running time : " << elapsed << " ms" << endl << endl;
 
 		MPI_Finalize();
 	}
