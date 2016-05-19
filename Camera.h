@@ -12,16 +12,16 @@ class Camera {
 	// Coordonnées
 	
 	Vector eye;
-	Vector target; // non utilisé dans le projet
-	Vector orientation; // non utilisé dans le projet
+	Vector target;
+	Vector up;
 	int width;
 	int height;
 	
 	// Constructeurs
 	
 	Camera();
-	Camera(Vector eye, Vector target, Vector orientation);
-	Camera(Vector eye, Vector target, Vector orientation, int width, int height);
+	Camera(Vector eye, Vector target, Vector up);
+	Camera(Vector eye, Vector target, Vector up, int width, int height);
 	
 	// Destructeur
 	
