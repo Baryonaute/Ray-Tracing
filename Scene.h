@@ -11,7 +11,7 @@ class Scene {
 	
 	public :
 	
-	// Container
+	// Objets
 	
 	vector<Sphere> spheres;
 	vector<Light> lights;

@@ -22,13 +22,13 @@ RayTracer::RayTracer(Camera camera, Scene scene, int max_depth, double ka, doubl
 Vector RayTracer::pixelCompute(Ray ray, Sphere sphere, Vector point) {
 	
 	Vector n = point - sphere.center;
-	n.normalize(); // "n" est la normale à "sphere" en "point"
+	n.normalize();
 	
 	Vector v = camera.eye - point;
-	v.normalize(); // "v" est le vecteur unitaire qui va de "point" vers l'oeil
+	v.normalize();
 	
-	Vector l; // "l" est le vecteur unitaire qui va de "point" vers la source lumineuse
-	Vector r; // "r" est le vecteur unitaire symétrique de "l" par rapport à "n" (et coplanaire avec "l" et "n")
+	Vector l;
+	Vector r;
 	
 	Vector intensity = Vector();
 	
@@ -53,13 +53,13 @@ Vector RayTracer::pixelCompute(Ray ray, Sphere sphere, Vector point) {
 		
 		if (shadow) {
 			
-			intensity = (intensity + ka * (1 / numberOfLightSources) * (*light).color); // ambiant light
+			intensity = (intensity + ka * (1 / numberOfLightSources) * (*light).color); // lumière ambiante
 			
 		} else {
 			
-			intensity = intensity + ka * (1 / numberOfLightSources) * (*light).color; // ambiant light
-			if (l * n > 0) intensity = intensity + kd * (l * n) * (*light).color; // diffuse light
-			if (r * v > 0) intensity = intensity + ks * pow((r * v), alpha) * (*light).color; // specular light
+			intensity = intensity + ka * (1 / numberOfLightSources) * (*light).color; // lumière ambiante
+			if (l * n > 0) intensity = intensity + kd * (l * n) * (*light).color; // lumière diffuse
+			if (r * v > 0) intensity = intensity + ks * pow((r * v), alpha) * (*light).color; // lumière "specular"
 		}
 	}
 	
@@ -67,22 +67,25 @@ Vector RayTracer::pixelCompute(Ray ray, Sphere sphere, Vector point) {
 	double intensity_y = intensity.y * sphere.color.y / 255;
 	double intensity_z = intensity.z * sphere.color.z / 255;
 	
-	if (intensity_x > 255) intensity_x = 255; // max value for the RGB color scale
+	if (intensity_x > 255) intensity_x = 255;
 	if (intensity_y > 255) intensity_y = 255;
 	if (intensity_z > 255) intensity_z = 255;
 	
-	Vector result = Vector((unsigned char)(intensity_x), (unsigned char)(intensity_y), (unsigned char)(intensity_z)); // RGB colors of the pixel
+	Vector result = Vector((unsigned char)(intensity_x), (unsigned char)(intensity_y), (unsigned char)(intensity_z));
 	
 	return result;
 }
 
+
+// Calcul récursif de la couleur d'un pixel en RGB pour ajouter les effets de réflexion
+
 Vector RayTracer::recursivePixelCompute(Ray ray, int depth) {
 	
-	Vector result = Vector(0, 0, 0);
+	Vector result = Vector();
 	
-	if (depth > max_depth) return Vector(0, 0, 0);
+	if (depth > max_depth) return Vector();
 	
-	pair<bool, pair<Sphere, Vector>> intersection = ray.intersects(scene.spheres);
+	pair<bool, pair<Sphere, Vector> > intersection = ray.intersects(scene.spheres);
 	Sphere sphere = intersection.second.first;
 	Vector point = intersection.second.second;
 	
@@ -97,18 +100,21 @@ Vector RayTracer::recursivePixelCompute(Ray ray, int depth) {
 			
 			Ray reflected = Ray(point - 0.0001 * ray.direction, -2 * (ray.direction * n) * n + ray.direction);
 			
+			/* Pour des raisons d'arrondis numériques, on est obligé de prendre comme point de départ du rayon réfléchi un point légèrement (-0.0001 * ray.direction est complètement arbitraire !) en retrait du point d'intersection calculé. On obtenait sinon des effets moirés particulièrement frustrants : le programme considérait que certains points étaient DANS la sphère et donc que le rayon coupait immédiatement la sphère courante, sans aller plus loin.
+			 */
+			
 			Vector tmp = recursivePixelCompute(reflected, depth + 1);
 			
-			if (tmp.x != 0 || tmp.y != 0 || tmp.z != 0) {
+			if (!(tmp == Vector(0, 0, 0))) {
 				
-				result = (1 - sphere.r) * result + sphere.r * recursivePixelCompute(reflected, depth + 1); // on applique le coefficient de réflexion
-				
+				result = (1 - sphere.r) * result + sphere.r * recursivePixelCompute(reflected, depth + 1); // sphere.r = coefficient de réflexion
 			}
 		}
 	}
 	
 	return result;
 }
+
 
 // Affichage console
 

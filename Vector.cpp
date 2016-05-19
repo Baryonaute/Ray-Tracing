@@ -72,6 +72,13 @@ void Vector::normalize() {
 
 // Opérateurs surchargés
 
+bool operator==(Vector const& vector1, Vector const& vector2) { // égalité
+	
+	if (vector1.x == vector2.x && vector1.y == vector2.y && vector1.z == vector2.z) return true;
+	
+	return false;
+}
+
 Vector operator+(Vector const& v, Vector const& w) { // addition
 	
 	Vector copy = v;

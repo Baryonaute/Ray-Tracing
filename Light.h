@@ -12,7 +12,7 @@ class Light {
 	// Coordonnées
 	
 	Vector source;
-	Vector color;
+	Vector color; // Vector(R, G, B)
 	
 	// Constructeurs
 	

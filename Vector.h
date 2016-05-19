@@ -40,6 +40,7 @@ ostream& operator<<(ostream& os, const Vector& v);
 
 // Opérateurs surchargés
 
+bool operator==(Vector const& vector1, Vector const& vector2); // égalité
 Vector operator+(Vector const& v, Vector const& w); // addition
 Vector operator-(Vector const& v, Vector const& w); // soustraction
 double operator*(Vector const& v, Vector const& w); // produit scalaire

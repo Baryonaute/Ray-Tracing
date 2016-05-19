@@ -106,9 +106,9 @@ int main(int argc, const char * argv[]) {
 	
 	// Lights
 	
-	Light light1 = Light(Vector(1280, 495, 70));
-	Light light2 = Light(Vector(1280, 465, 70));
-	Light light3 = Light(Vector(70, 200, 400));
+	Light light1 = Light(Vector(2560, 990, 140));
+	Light light2 = Light(Vector(2560, 930, 140));
+	Light light3 = Light(Vector(140, 400, 800));
 	vector<Light> lights;
 	lights.push_back(light1);
 	lights.push_back(light2);
@@ -117,9 +117,9 @@ int main(int argc, const char * argv[]) {
 	
 	// Spheres
 	
-	Sphere blue = Sphere(Vector(1040, 480, 70), 25, Vector(20, 20, 255), 0.1);
-	Sphere red = Sphere(Vector(640, 480, -200), 200, Vector(255, 20, 20), 0.4);
-	Sphere green = Sphere(Vector(240, 480, 0), 200, Vector(20, 255, 20), 0.4);
+	Sphere blue = Sphere(Vector(2080, 960, 140), 50, Vector(20, 20, 255), 0.1);
+	Sphere red = Sphere(Vector(1280, 960, -400), 400, Vector(255, 20, 20), 0.4);
+	Sphere green = Sphere(Vector(480, 960, 0), 400, Vector(20, 255, 20), 0.4);
 	vector<Sphere> spheres;
 	spheres.push_back(blue);
 	spheres.push_back(red);
@@ -182,59 +182,14 @@ int main(int argc, const char * argv[]) {
 				pixels[pixel].r = 255;
 				pixels[pixel].g = 255;
 				pixels[pixel].b = 255;
-				
 			}
-			
-			/*
-			Vector point;
-			bool intersected = false;
-			pair<bool, Vector> intersection;
-		
-			for (vector<Sphere>::iterator sphere = scene.spheres.begin(); sphere != scene.spheres.end(); ++sphere) {
-				
-				intersection = ray.intersect(*sphere);
-				
-				if (intersection.first && !intersected) {
-					
-					intersected = true;
-					point = intersection.second;
-					
-					Vector result = rayTracer.pixelCompute(ray, *sphere, point);
-					pixels[pixel].r = result.x;
-					pixels[pixel].g = result.y;
-					pixels[pixel].b = result.z;
-					
-				} else if (intersection.first && intersected) {
-					
-					Vector tmp1 = point - camera.eye;
-					Vector tmp2 = intersection.second - camera.eye;
-					
-					if (tmp2.norm() < tmp1.norm()) {
-						
-						point = intersection.second;
-						
-						Vector result = rayTracer.pixelCompute(ray, *sphere, point);
-						pixels[pixel].r = result.x;
-						pixels[pixel].g = result.y;
-						pixels[pixel].b = result.z;
-					}
-				}
-			}
-			
-			if (!intersected) {
-				
-				pixels[pixel].r = 255;
-				pixels[pixel].g = 255;
-				pixels[pixel].b = 255;
-			}
-			 */
 		}
 	}
 	
 	
 	// Enregistrement de l'image
 	
-	savebmp("image3.bmp", width, height, dpi, pixels);
+	savebmp("image.bmp", width, height, dpi, pixels);
 	
 	cout << "Image rendered successfully." << endl;
 	
