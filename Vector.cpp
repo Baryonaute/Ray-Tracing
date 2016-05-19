@@ -44,7 +44,7 @@ double Vector::scalar(Vector v) {
 
 Vector Vector::vectorial(Vector v) {
 	
-	return Vector(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.z);
+	return Vector(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
 }
 
 double Vector::norm() {

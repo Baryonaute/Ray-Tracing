@@ -94,40 +94,75 @@ void savebmp (const char *filename, int width, int height, int dpi, RGBType *dat
 	fclose(f);
 }
 
-int main(int argc, char ** argv) {
+int main(int argc, char **argv) {
 	
 	///////////////////////////////////////
 	//// MISE EN PLACE DE L'EXPERIENCE ////
 	///////////////////////////////////////
 
-	
+	ifstream inputFile;
+	string fileLocation = "./scene1.txt"; // choisir la scène désirée
+	inputFile.open(fileLocation);
+
+	while(inputFile.fail()) {
+
+		cout << "The file at location " << fileLocation << " failed to open" << endl;
+		return 1;
+	}
+
+
 	// Lights
 	
-	Light light1 = Light(Vector(2560, 990, 140));
-	Light light2 = Light(Vector(2560, 930, 140));
-	Light light3 = Light(Vector(140, 400, 800));
+	int nbLights;
+	inputFile >> nbLights;
+	
 	vector<Light> lights;
-	lights.push_back(light1);
-	lights.push_back(light2);
-	lights.push_back(light3);
+	
+	for (int i = 0; i < nbLights; ++i) {
+		
+		double x, y, z, red, green, blue;
+		inputFile >> x >> y >> z >> red >> green >> blue;
+		lights.push_back(Light(Vector(x, y, z), Vector(red, green, blue)));
+	}
 	
 	
 	// Spheres
 	
-	Sphere blue = Sphere(Vector(2080, 960, 140), 50, Vector(20, 20, 255), 0.1);
-	Sphere red = Sphere(Vector(1280, 960, -400), 400, Vector(255, 20, 20), 0.4);
-	Sphere green = Sphere(Vector(480, 960, 0), 400, Vector(20, 255, 20), 0.4);
+	int nbSpheres;
+	inputFile >> nbSpheres;
+	
 	vector<Sphere> spheres;
-	spheres.push_back(blue);
-	spheres.push_back(red);
-	spheres.push_back(green);
+	
+	for (int i = 0; i < nbSpheres; ++i) {
+		
+		double x, y, z, radius, red, green, blue, reflexion;
+		inputFile >> x >> y >> z >> radius >> red >> green >> blue >> reflexion;
+		spheres.push_back(Sphere(Vector(x, y, z), radius, Vector(red, green, blue), reflexion));
+	}
 	
 	
-	// Superstructure
+	// Scène
 	
-	Camera camera = Camera(); // Caméra par défaut. Deux autres constructeurs permettent des variantes.
 	Scene scene = Scene(spheres, lights);
-	RayTracer rayTracer = RayTracer(camera, scene, 1, 0.5, 0.6, 8, 200);
+	
+	
+	// Caméra
+	
+	double x_eye, y_eye, z_eye, x_target, y_target, z_target, x_up, y_up, z_up;
+	int w, h;
+	inputFile >> x_eye >> y_eye >> z_eye >> x_target >> y_target >> z_target >> x_up >> y_up >> z_up;
+	inputFile >> w >> h;
+	
+	Camera camera = Camera(Vector(x_eye, y_eye, z_eye), Vector(x_target, y_target, z_target), Vector(x_up, y_up, z_up), w, h);
+	
+	
+	// Ray Tracer
+	
+	int max_depth;
+	double ka, kd, ks, alpha;
+	inputFile >> max_depth >> ka >> kd >> ks >> alpha;
+	
+	RayTracer rayTracer = RayTracer(camera, scene, max_depth, ka, kd, ks, alpha);
 	
 	
 	/////////////////////////////////////////////////
@@ -138,11 +173,17 @@ int main(int argc, char ** argv) {
 	// Construction de l'image pixel par pixel
 	
 	int dpi = 72;
-	int width = camera.width;
-	int height = camera.height;
+	int width = rayTracer.camera.width;
+	int height = rayTracer.camera.height;
 	int n = width * height;
 
-	int pixel;
+	/* Trièdre associé à la position du plan de l'image DANS LA SCÈNE */
+	
+	Vector y_direction = rayTracer.camera.up;
+	Vector z_direction = rayTracer.camera.eye - rayTracer.camera.target;
+	z_direction.normalize();
+	Vector x_direction = y_direction.vectorial(z_direction);
+	x_direction.normalize();
 
 
 	// Variables et paramètres MPI
@@ -179,10 +220,28 @@ int main(int argc, char ** argv) {
 
 		for (int pixel = 0; pixel < step; ++pixel) {
 
-			int x = ((my_rank - 1) * step + pixel) % width;
-			int y = (pixel - x) / width + (my_rank - 1) * (height / (p - 1));
+			int x = ((my_rank - 1) * step + pixel) % width;                   // coordonnée x des pixels SUR L'IMAGE
+			int y = (pixel - x) / width + (my_rank - 1) * (height / (p - 1)); // coordonnée y des pixels SUR L'IMAGE
 
-			Ray ray = Ray(camera.eye, Vector(x, y, 0) - camera.eye);
+			double x1, y1, z1; // coordonnées réelles des pixels DANS LA SCÈNE
+					
+			Vector ligne1 = Vector(x_direction.x, y_direction.x, z_direction.x); // ligne 1 de la matrice de changement de base
+			Vector ligne2 = Vector(x_direction.y, y_direction.y, z_direction.y); // ligne 2 de la matrice de changement de base
+			Vector ligne3 = Vector(x_direction.z, y_direction.z, z_direction.z); // ligne 3 de la matrice de changement de base
+					
+			x1 = rayTracer.camera.target.x + ligne1 * Vector(x, y, 0);
+			y1 = rayTracer.camera.target.y + ligne2 * Vector(x, y, 0);
+			z1 = rayTracer.camera.target.z + ligne3 * Vector(x, y, 0);
+					
+			/* On centre l'image autour du point target */
+					
+			x1 = x1 - (width / 2) * x_direction.x - (height / 2) * rayTracer.camera.up.x;
+			y1 = y1 - (width / 2) * x_direction.y - (height / 2) * rayTracer.camera.up.y;
+			z1 = z1 - (width / 2) * x_direction.z - (height / 2) * rayTracer.camera.up.z;
+					
+			/* On tire un rayon depuis l'oeil de la caméra */
+			
+			Ray ray = Ray(rayTracer.camera.eye, Vector(x1, y1, z1) - rayTracer.camera.eye);
 
 			if (ray.intersects(rayTracer.scene.spheres).first) {
 				
